@@ -172,12 +172,15 @@ void CreateModel()
 	encoder = CNTK::ReLU(encoder, L"encoder/convlayer1/activation");
 	encoder = Conv2DLayer(gpu, encoder, 64, 5, 5, true, 1, 1, 0.26, L"encoder/convlayer2");
 	encoder = CNTK::ReLU(encoder, L"encoder/convlayer2/activation");
+	CNTK::FunctionPtr poolingInput = encoder;
+	encoder = CNTK::Pooling(encoder, CNTK::PoolingType::Max, { 2, 2 , 1 });
 
 	decoderInput = CNTK::PlaceholderVariable(encoder->Output().Shape(), L"decoder/input", CNTK::Axis::DefaultInputVariableDynamicAxes());
 	//decoderInput = encoder;
 
 	std::wcout << encoder->Output().Shape().AsString() << std::endl;
 
+	decoderInput = CNTK::Unpooling(decoderInput, poolingInput, CNTK::PoolingType::Max, { 2, 2, 1 });
 	decoder = ConvTranspose2DLayer(gpu, decoderInput, 64, 5, 5, true, 1, 1, 0.26, L"decoder/deconvlayer1");
 	decoder = CNTK::ReLU(decoder, L"decoder/deconvlayer1/activation");
 	std::wcout << decoder->Output().Shape().AsString() << std::endl;
