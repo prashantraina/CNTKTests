@@ -207,7 +207,7 @@ void Train()
 	std::vector<size_t> indices(num_training_images);
 	std::iota(indices.begin(), indices.end(), 0);
 
-	const size_t num_epochs = 300;
+	const size_t num_epochs = 2;
 	const size_t minibatch_size = 64;
 	const size_t num_minibatches = (num_training_images + minibatch_size - 1) / minibatch_size;
 
@@ -230,6 +230,7 @@ void Train()
 			static const CNTK::NDShape imageShape = { image_height * image_width };
 
 			CNTK::ValuePtr input_value = CNTK::Value::Create(imageShape, arrays, {}, gpu, true, true);
+			const CNTK::NDShape input_value_shape = input_value->Shape();
 
 			trainer->TrainMinibatch({ { inputVar, input_value },{ targetVar, input_value } }, gpu);
 
@@ -284,6 +285,7 @@ void DisplayResult()
 	//decoder->ReplacePlaceholders({ {decoderInput, decoderTestVar} });
 
 	CNTK::ValuePtr testing_values =  CNTK::Value::CreateBatch<float>(10, prehots, gpu, true);
+	const CNTK::NDShape testing_values_shape = testing_values->Shape();
 
 	std::unordered_map<CNTK::Variable, CNTK::ValuePtr> outputs10 = { { testingDecoder, nullptr } };
 
